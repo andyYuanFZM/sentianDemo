@@ -44,7 +44,7 @@ Solidity语言更多信息, 请参阅  [[Solidity中文官方文档]](https://le
 
 ### 通过SDK实现合约部署调用     
 #### JAVA-SDK
-适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。 
+适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。   
 JAVA-SDK环境开发环境部署参考链接： [[JAVA-SDK]](https://github.com/andyYuanFZM/sentianDemo/blob/master/JAVA-SDK开发环境.md)  
 
 1. 子目录说明
