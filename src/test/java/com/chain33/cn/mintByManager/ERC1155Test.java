@@ -23,28 +23,24 @@ import cn.chain33.javasdk.utils.TransactionUtil;
  */
 public class ERC1155Test {
 
-	// 平行链所在服务器IP地址
-	String ip = "172.22.16.179";
+	// TODO:需要设置参数 平行链所在服务器IP地址
+	String ip = "平行链服务器IP地址";
 	// 平行链服务端口
 	int port = 8901;
 	RpcClient client = new RpcClient(ip, port);
 	
     // 平行链名称，固定格式user.p.xxxx.样例中使用的名称叫mbaas， 根据自己平行链名称变化。  这个名称一定要和平行链配置文件中的名称完全一致。
-	String paraName = "user.p.mbaas.";
+	String paraName = "user.p.sentianPara.";
 
-	// 合约部署人（管理员）地址和私钥,地址下需要有BTY来缴纳手续费
+	// TODO:需要设置参数： 合约部署人（管理员）地址和私钥,地址下需要有燃料来缴纳手续费
 	// 生成方式参考下面testCreateAccount方法，私钥和地址一一对应
-	String managerAddress = "14nh6p7CUNtLXAHEiVkSd5mLUWynzafHBx";
-	String managerPrivateKey = "7dfe80684f7007b2829a28c85be681304f7f4cf6081303dbace925826e2891d1";
-//	String managerAddress = "替换成自己的地址，用下面createAccount方法生成";
-//  String managerPrivateKey = "替换成自己的私钥，用下面createAccount方法生成,注意私钥千万不能泄漏";
+	String managerAddress = "替换成自己的地址，用下面createAccount方法生成";
+	String managerPrivateKey = "替换成自己的私钥，用下面createAccount方法生成,注意私钥千万不能泄漏";
     
-    // 用户手续费代扣地址和私钥,地址下需要有BTY来缴纳手续费
+    // TODO:需要设置参数： 用户手续费代扣地址和私钥,地址下需要有一定燃料来缴纳手续费
 	// 生成方式参考下面testCreateAccount方法，私钥和地址一一对应
-	String withholdAddress = "17RH6oiMbUjat3AAyQeifNiACPFefvz3Au";
-    String withholdPrivateKey = "56d1272fcf806c3c5105f3536e39c8b33f88cb8971011dfe5886159201884763";
-//	String withholdAddress = "替换成自己的地址，用下面createAccount方法生成";
-//    String withholdPrivateKey = "替换成自己的私钥，用下面createAccount方法生成,注意私钥千万不能泄漏";
+	String withholdAddress = "替换成自己的地址，用下面createAccount方法生成";
+    String withholdPrivateKey = "替换成自己的私钥，用下面createAccount方法生成,注意私钥千万不能泄漏";
     
     // 用户A地址和私钥
 	String useraAddress;
@@ -80,7 +76,7 @@ public class ERC1155Test {
         System.out.println("部署好的合约地址 = " + contractAddress);
         
         // =======>  step3: 调用合约发行NFT,假设为2件游戏道具各生成100个NFT资产, id从10000开始
-                
+        // ERC1155支持同一个TOKENID发行多个数量（同一幅画多个副本）， 如果想实现一画一token，传入合约的数组length设置为1
         int lenght = 100;
         // tokenId数组
         int[] ids = new int[lenght];
@@ -172,8 +168,8 @@ public class ERC1155Test {
         System.out.println("部署合约交易hash = " + txhash);
         
         // BTY平均3-5秒一个区块确认， 需要延时去查结果
-        Thread.sleep(5000);
-		for (int tick = 0; tick < 20; tick++){
+        Thread.sleep(10000);
+		for (int tick = 0; tick < 30; tick++){
 			txResult = client.queryTransaction(txhash);
 			if(txResult == null) {
 				Thread.sleep(3000);
@@ -186,7 +182,7 @@ public class ERC1155Test {
 			System.out.println("合约部署成功");
 
 		} else {
-			System.out.println("合约部署失败，一般失败原因可能是因为地址下手续费不够");
+			System.out.println("合约部署失败,请通过区块链浏览器或命令行查看失败原因" );
 		}
 		
 		return txhash;
@@ -218,9 +214,9 @@ public class ERC1155Test {
         txhash = client.submitTransaction(txEncode);
         System.out.println("调用合约hash = " + txhash);
         
-        // BTY平均3-5秒一个区块确认， 需要延时去查结果
-        Thread.sleep(5000);
-		for (int tick = 0; tick < 20; tick++){
+        // 平均3-5秒一个区块确认， 需要延时去查结果
+        Thread.sleep(10000);
+		for (int tick = 0; tick < 30; tick++){
 			txResult = client.queryTransaction(txhash);
 			if(txResult == null) {
 				Thread.sleep(3000);
@@ -233,7 +229,7 @@ public class ERC1155Test {
 			System.out.println("合约调用成功");
 			
 		} else {
-			System.out.println("合约调用失败，一般失败原因可能是因为地址下手续费不够");
+			System.out.println("合约调用失败，请通过区块链浏览器或命令行查看失败原因");
 		}
 		
 		return txhash;
@@ -291,8 +287,8 @@ public class ERC1155Test {
 	    String nextString = null;
         QueryTransactionResult txResult = new QueryTransactionResult();
 
-		Thread.sleep(5000);
-		for (int tick = 0; tick < 20; tick++){
+		Thread.sleep(10000);
+		for (int tick = 0; tick < 30; tick++){
 			QueryTransactionResult result = client.queryTransaction(submitTransaction);
 			if(result == null) {
 				Thread.sleep(3000);
@@ -312,7 +308,7 @@ public class ERC1155Test {
 			System.out.println("合约调用成功");
 			
 		} else {
-			System.out.println("合约调用失败，一般失败原因可能是因为地址下手续费不够");
+			System.out.println("合约调用失败，请通过区块链浏览器或命令行查看失败原因");
 		}
 		return nextString;
     }

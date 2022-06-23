@@ -30,7 +30,7 @@ public class ERC1155Test {
 	RpcClient client = new RpcClient(ip, port);
 	
     // 平行链名称，固定格式user.p.xxxx.样例中使用的名称叫mbaas， 根据自己平行链名称变化。  这个名称一定要和平行链配置文件中的名称完全一致。
-	String paraName = "user.p.mbaas.";
+	String paraName = "user.p.sentianPara.";
     
     // 用户手续费代扣地址和私钥,地址下需要有BTY来缴纳手续费
 	// 生成方式参考下面testCreateAccount方法，私钥和地址一一对应
