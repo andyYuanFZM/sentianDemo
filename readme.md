@@ -44,18 +44,19 @@ Solidity语言更多信息, 请参阅  [[Solidity中文官方文档]](https://le
 
 ### 通过SDK实现合约部署调用     
 #### JAVA-SDK
-适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。  [[JAVA-SDK]](https://github.com/andyYuanFZM/sentianDemo/blob/master/JAVA-SDK开发环境.md)  
+适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。 
+JAVA-SDK环境开发环境部署参考链接： [[JAVA-SDK]](https://github.com/andyYuanFZM/sentianDemo/blob/master/JAVA-SDK开发环境.md)  
 
-#### 子目录说明
+1. 子目录说明
 mintByManager目录下的NFT合约只支持管理员来发行NFT， 适用于平台对于NFT发行有严格限制的业务场景。（**最常用，一般情况下都是用这种方式**）  
 mintByUser目录下的NFT合约不限制只有管理员才能发行，任何用户都可以调用mint方法发行NFT， 适用于平台任意作者都可以发行NFT的业务场景。   
 deployByUser此目录下的用例支持任意用户都可以部署NFT合约，适用于平台支持每一个艺术家都可以部署自己的智能合约（这种场景较少）。  
 
 **目前使用最多的是mintByManager目录下的ERC1155合约, 建议只关注这个用例**  
 
-#### 运行JAVA Demo程序  
-1. 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/sentianDemo/blob/master/BlockChain.java)  中的createAccount方法，生成地址和私钥
-2. 修改对应子目录下的ERC1155Test或ERC721Test文件，将上一步生成的内容，分别填充到以下几个参数中，注意私钥即资产，要隐私存放，而地址是可以公开的
+2. 运行JAVA Demo程序  
+2.1 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/sentianDemo/blob/master/BlockChain.java)  中的createAccount方法，生成地址和私钥
+2.2 修改对应子目录下的ERC1155Test或ERC721Test文件，将上一步生成的内容，分别填充到以下几个参数中，注意私钥即资产，要隐私存放，而地址是可以公开的
 ```  
 // 管理员地址和私钥
 String managerAddress = "";
@@ -65,18 +66,18 @@ String managerPrivateKey = "";
 String withholdAddress = "";
 String withholdPrivateKey = "";
 ```  
-3. 给上述两个地址下充值测试用的燃料
-4. 修改ERC1155Test或ERC721Test两个文件中以下两个参数
+2.3 给上述两个地址下充值测试用的燃料
+2.4 修改ERC1155Test或ERC721Test两个文件中以下两个参数
 ```  
 // 改成自己平行链所在服务器IP地址
 String ip = "";
 // 改成自己平行链服务端口，对应的是配置文件里的jrpcBindAddr配置项，默认的是8901。 注意：如果远程访问，防火墙要放行此端口
 int port = 8901;
 ```   
-5. 修改平行链名称
+2.5. 修改平行链名称
 ```  
-// 改成一.4中自己设置的平行链名称
-String paraName = "user.p.mbaas.";
+// 改成和部署的森田平行链一致，目前叫：user.p.sentianPara.
+String paraName = "user.p.sentianPara.";
 ```   
 6. 运行测试程序  
 
