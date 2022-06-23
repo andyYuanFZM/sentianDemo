@@ -16,7 +16,7 @@
 
 ### 文档阅读说明
 - 术语介绍：简单了解  
-- 森田链环境部署：已经有环境的可以略过不看，需要自己独立部署的重点了解。  
+- 森田链环境部署：由森田运维负责部署，略。  
 - NFT合约概述： 了解下概念，文档中有NFT合约的样例，如果样例太简单满足不了业务需求，需要自己开发新合约的，可以重点了解  
 - 通过SDK实现合约部署调用：***重点了解***
 - 应用和森田平行链对接注意事项: ***重点了解，是项目中踩过的坑，了解过后可少走弯路。***
@@ -34,125 +34,7 @@
 | 8   | SDK| 封装了同区块链交互的接口和区块链通用方法（包括：公私钥生成，签名，交易构造等）, 支持java-sdk, go-sdk, web3.js等 |
 
 ### 森田链环境部署
-**如果环境已经具备，可略过不看，直接去看下一章：NFT合约概述。**  
-#### 说明  
-主链采用Ticket共识机制, Ticket共识是一种安全的POS共识机制（SPOS）, 用户通过购买票（Ticket）获得投票权, 投票权重的多少跟用户拥有的票数量和持有时间有关。  
-主链+平行链交易流程：  
-- 交易在链下完成构造和签名,交易构造时需要在交易体中带上对应平行链的名称。   
-- 签好名的交易通过平行链的jsonrpc接口发往平行链节点。   
-- 平行链通过它和主链之间的grpc连接,将交易转发到主链节点,由主链打包区块共识后存入主链账本。   
-- 主链区块生成后,平行链实时拉取新产生的区块,过滤出属于本平行链的交易（根据平行链名称）, 送入虚拟机执行后并写入平行链账本。  
-下面介绍主链节点和平行链节点的部署，智能合约部署和调用方法。  
-	
-#### 主链节点同步：  
-目前主链已经有100多G的区块数据，同步时间会比较长（SSD硬盘情况下超过4天），建议提前规划时间。  
-- 准备一台最小配置为4核8G的linux服器（建议配置8核16G, ubuntu或Centos都可），硬盘>300G （同步速度SSD硬盘效率要远远高于机械盘，根据自己情况选择硬盘类型）  
-
-- 从 https://github.com/bityuan/bityuan/releases 下载最新版本的release运行(比如以当前最新版本6.8.0来说明)        
-```  
-# 下载
-wget https://github.com/bityuan/bityuan/releases/download/v6.8.0/bityuan-linux-amd64.tar.gz
-# 新建目录
-mkdir bityuan
-# 解压
-tar -zxvf bityuan-linux-amd64.tar.gz -C bityuan
-```  
-
-- 目录下包含以下几个文件  
-```  
-bityuan-linux-amd64                -- 节点程序
-bityuan-cli-linux-amd64            -- 节点命令行工具
-bityuan.toml                       -- 配置文件（带数据分片功能，占空间小），后面启动时用这个配置
-bityuan-fullnode.toml              -- 配置文件（全节点模式，占空间大）
-```  
-
-- 修改配置文件 
-```  
-[blockchain]
- # 默认是false, 需要改成true， 此参数含义是主链给平行链同步区块sequence信息，如果不开启，平行链无法同步主链的区块  
-isRecordBlockSequence=true  
-[rpc]  
- # 数据上链jsonrpc端口, 默认只限制localhost访问，去掉localhost只保留":8801"代表允许远端访问 
-jrpcBindAddr="localhost:8801"
- # 数据上链grpc端口, 默认只限制localhost访问，去掉localhost只保留":8802"代表允许远端访问 
-grpcBindAddr="localhost:8802"  
- # 白名单IP,限制哪些IP有访问权限： 多个ip之间以逗号分隔,127.0.0.1代表只能本地访问, * 代表不作任何限制  
-whitelist=["127.0.0.1"] 
-```  
-
-- 启动主链程序
-```  
-nohup ./bityuan-linux-amd64 -f bityuan.toml >> bty.out&
-```  
-- 检查主链的同步状态(进程启动后，等待一会后执行) 
-```  
-#  主要看返回信息中自己节点的height信息， 和主链最大高度一致代表同步成功。  这一过程时间比较长，按目前2000万左右的区块高度， SSD硬盘同步需要三天左右时间， 普通机械硬盘耗时可能翻倍
- ./bityuan-cli-linux-amd64 net peer info  
-```   
-
-- 创建钱包，接收空投 (这一步可以在主链节点还没有同步完情况下执行)   
-每一笔交易上链，都需要支付BTY作为手续费， 前期测试交易量比较少的情况下，可以用空投的BTY来充当手续费
-```  
-# 生成助记词，以下命令执行完返回的一串英文字符串就是助记词  
-./bityuan-cli-linux-amd64 seed generate -l 0 
-# 保存助记词
-./bityuan-cli-linux-amd64 seed save -s "上一步返回的助记词" -p 钱包密码（必须小写字母+数据的组合，比如abcd1234这种）
-# 解锁钱包  
-./bityuan-cli-linux-amd64 wallet unlock -p 上一步设置的钱包密码
-# 查看钱包里资产， 其中标签名为dht node award和airdropaddr两个地址下，每天都会收到BTY空投， 可以覆盖测试用的手续费
-./bityuan-cli-linux-amd64 account list
-```  
-
-- 转移空投地址下的燃料到另外的地址(只有在主链节点同步完后，才能看到空投资产，所以这一步要在同步完后再执行,同步过程中执行会报一个：ErrNotSync的错)   
-```  
-# 查看空投地址的私钥
-./bityuan-cli-linux-amd64 account dump_key -a 空投地址
-# 将BTY从空投地址转到另外地址下（分三步，构造交易，签名，发送）
-./bityuan-cli-linux-amd64  coins transfer -a 100 -n test -t  用户另外的地址
-./bityuan-cli-linux-amd64  wallet sign -k 空投地址的私钥 -d 上一步返回的数据
-./bityuan-cli-linux-amd64  wallet send -d 上一步返回的数据
-```   
- 
-### 平行链节点部署 
-正常需要完成主链同步才可以部署平行链。 可以临时使用官方的主链连接做开发测试, 等自己主链节点同步完后,再改成自己的连接,具体见下文配置说明 。  
-- 下载平行链，解压压缩包，并进入目录  
-```  
-wget https://bty33.oss-cn-shanghai.aliyuncs.com/chain33Dev/parachain/linux/chain33_para_linux_0670237.tar.gz  
-tar -zxvf chain33_para_linux_0670237.tar.gz  
-cd chain33_para_linux_0670237  
-```  
-
-- 目录下包含以下三个文件  
-```  
-chain33                -- chain33节点程序
-chain33-cli            -- chain33节点命令行工具
-chain33.para.toml      -- chain33平行链配置文件
-```  
-
-- 修改配置文件（chain33.para.toml），修改以下几个配置项：  
-```  
- #平行链名称，用来唯一标识一条平行链，  可将mbaas修改成自己想要的名称（只支持英文字符），最后一个 . 号不能省略
-Title="user.p.mbaas."
- #主链的grpc地址，可以临时使用官方的grpc连接：ParaRemoteGrpcClient="jiedian2.bityuan.com,cloud.bityuan.com"
- #上述连接只用于开发测试，商用的话，需要将指向自己部署好的主链IP:8802，这样通信更流畅
-ParaRemoteGrpcClient="localhost:8802"
- #指示从主链哪个高度开始同步，比如目前主链高度是19391000，建议配置是提前1000个区块（19391000-1000=19390000）  
- #主链高度可以通过区块链浏览器来查询： https://mainnet.bityuan.com/home  
-startHeight=1  ==> 改成 startHeight=19390000
-```  
-
-- 启动平行链
-```  
-nohup ./chain33 -f chain33.para.toml >> para.out&  
-```  
-
-- 检查平行链和主链的同步状态(进程启动后，等待一会后再执行)  
-```
- #返回true代表同步完成
-./chain33-cli --rpc_laddr="http://localhost:8901" para is_sync
- # 当前平行链最大区块高度
-./chain33-cli --rpc_laddr="http://localhost:8901" block last_header
-```  
+**环境已经具备，此章略过。**  
 
 ### NFT合约概述
 NFT合约运行在平行链的EVM虚拟机中, EVM虚拟机运行solidity语言编写和编译的智能合约。   
@@ -165,7 +47,7 @@ Solidity语言更多信息, 请参阅  [[Solidity中文官方文档]](https://le
 适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。  [[JAVA-SDK]](https://github.com/andyYuanFZM/sentianDemo/blob/master/JAVA-SDK开发环境.md)  
 
 #### 子目录说明
-mintByManager目录下的NFT合约只支持管理员来发行NFT， 适用于平台对于NFT发行有严格限制的业务场景。（**最常用，一般情况下都是用这种方式**）
+mintByManager目录下的NFT合约只支持管理员来发行NFT， 适用于平台对于NFT发行有严格限制的业务场景。（**最常用，一般情况下都是用这种方式**）  
 mintByUser目录下的NFT合约不限制只有管理员才能发行，任何用户都可以调用mint方法发行NFT， 适用于平台任意作者都可以发行NFT的业务场景。   
 deployByUser此目录下的用例支持任意用户都可以部署NFT合约，适用于平台支持每一个艺术家都可以部署自己的智能合约（这种场景较少）。  
 
