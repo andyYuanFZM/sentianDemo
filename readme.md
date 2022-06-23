@@ -34,7 +34,7 @@
 | 8   | SDK| 封装了同区块链交互的接口和区块链通用方法（包括：公私钥生成，签名，交易构造等）, 支持java-sdk, go-sdk, web3.js等 |
 
 ### 森田链环境部署
-** 如果已经有环境，只作了解，可以略过不看。**  
+**如果环境已经具备，只作了解，可以略过不看。**  
 #### 说明  
 主链采用Ticket共识机制, Ticket共识是一种安全的POS共识机制（SPOS）, 用户通过购买票（Ticket）获得投票权, 投票权重的多少跟用户拥有的票数量和持有时间有关。  
 主链+平行链交易流程：  
@@ -157,19 +157,21 @@ nohup ./chain33 -f chain33.para.toml >> para.out&
 ### NFT合约概述
 NFT合约运行在平行链的EVM虚拟机中, EVM虚拟机运行solidity语言编写和编译的智能合约。 
 Solidity语言更多信息, 请参阅  [[Solidity中文官方文档]](https://learnblockchain.cn/docs/solidity/)  
-下文介绍ERC1155和ERC721两类合约最简单的使用，包括两种合约的基本介绍， 合约的编写和编译等。    [[NFT合约开发编译]](https://github.com/andyYuanFZM/NFTDemo/tree/main/src/test/java/com/chain33/cn/NFT合约开发编译.md)  
+下文介绍ERC1155和ERC721两类合约最简单的使用，包括两种合约的基本介绍， 合约的编写和编译等。    [[NFT合约开发编译]](https://github.com/andyYuanFZM/sentianDemo/blob/master/NFT合约开发编译.md)  
 
 ### 通过SDK实现合约部署调用     
 #### JAVA-SDK
-适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。  [[JAVA-SDK]](https://github.com/andyYuanFZM/NFTDemo/tree/main/src/test/java/com/chain33/cn/JAVA-SDK开发环境.md)  
+适用于应用平台使用JAVA开发的情况,提供SDK对应的jar包，SDK里包含了公私钥生成,合约部署方法,合约调用方法,交易签名,交易查询,区块链信息查询等方法。  [[JAVA-SDK]](https://github.com/andyYuanFZM/sentianDemo/blob/master/JAVA-SDK开发环境.md)  
 
 #### 子目录说明
 mintByManager目录下的NFT合约只支持管理员来发行NFT， 适用于平台对于NFT发行有严格限制的业务场景。（**最常用，一般情况下都是用这种方式**）
 mintByUser目录下的NFT合约不限制只有管理员才能发行，任何用户都可以调用mint方法发行NFT， 适用于平台任意作者都可以发行NFT的业务场景。   
 deployByUser此目录下的用例支持任意用户都可以部署NFT合约，适用于平台支持每一个艺术家都可以部署自己的智能合约（这种场景较少）。  
 
+**目前使用最多的是mintByManager目录下的ERC1155合约, 建议只关注这个用例**  
+
 #### 运行JAVA Demo程序  
-1. 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/NFTDemo/tree/main/src/test/java/com/chain33/cn/BlockChain.java)  中的createAccount方法，生成地址和私钥
+1. 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/sentianDemo/blob/master/BlockChain.java)  中的createAccount方法，生成地址和私钥
 2. 修改对应子目录下的ERC1155Test或ERC721Test文件，将上一步生成的内容，分别填充到以下几个参数中，注意私钥即资产，要隐私存放，而地址是可以公开的
 ```  
 // 管理员地址和私钥
