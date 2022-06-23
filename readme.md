@@ -66,15 +66,15 @@ String managerPrivateKey = "";
 String withholdAddress = "";
 String withholdPrivateKey = "";
 ```  
--给上述两个地址下充值测试用的燃料  
--修改ERC1155Test或ERC721Test两个文件中以下两个参数  
+- 给上述两个地址下充值测试用的燃料  
+- 修改ERC1155Test或ERC721Test两个文件中以下两个参数  
 ```  
 // 改成自己平行链所在服务器IP地址
 String ip = "";
 // 改成自己平行链服务端口，对应的是配置文件里的jrpcBindAddr配置项，默认的是8901。 注意：如果远程访问，防火墙要放行此端口
 int port = 8901;
 ```   
--修改平行链名称  
+- 修改平行链名称  
 ```  
 // 改成和部署的森田平行链一致，目前叫：user.p.sentianPara.
 String paraName = "user.p.sentianPara.";
