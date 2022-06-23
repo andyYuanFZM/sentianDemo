@@ -155,9 +155,10 @@ nohup ./chain33 -f chain33.para.toml >> para.out&
 ```  
 
 ### NFT合约概述
-NFT合约运行在平行链的EVM虚拟机中, EVM虚拟机运行solidity语言编写和编译的智能合约。 
+NFT合约运行在平行链的EVM虚拟机中, EVM虚拟机运行solidity语言编写和编译的智能合约。   
 Solidity语言更多信息, 请参阅  [[Solidity中文官方文档]](https://learnblockchain.cn/docs/solidity/)  
-下文介绍ERC1155和ERC721两类合约最简单的使用，包括两种合约的基本介绍， 合约的编写和编译等。    [[NFT合约开发编译]](https://github.com/andyYuanFZM/sentianDemo/blob/master/NFT合约开发编译.md)  
+下文[NFT合约开发编译]链接介绍ERC1155和ERC721两类合约最简单的使用。  
+两种合约的基本介绍， 合约的编写和编译，以及和链的交互流程等 [[NFT合约开发编译]](https://github.com/andyYuanFZM/sentianDemo/blob/master/NFT合约开发编译.md)   
 
 ### 通过SDK实现合约部署调用     
 #### JAVA-SDK
