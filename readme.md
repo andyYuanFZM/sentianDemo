@@ -103,7 +103,7 @@ nohup ./bityuan-linux-amd64 -f bityuan.toml >> bty.out&
 ./bityuan-cli-linux-amd64 account list
 ```  
 
-- 转移空投地址下的BTY到另外的地址(只有在主链节点同步完后，才能看到空投资产，所以这一步要在同步完后再执行,同步过程中执行会报一个：ErrNotSync的错)   
+- 转移空投地址下的燃料到另外的地址(只有在主链节点同步完后，才能看到空投资产，所以这一步要在同步完后再执行,同步过程中执行会报一个：ErrNotSync的错)   
 ```  
 # 查看空投地址的私钥
 ./bityuan-cli-linux-amd64 account dump_key -a 空投地址
@@ -115,7 +115,7 @@ nohup ./bityuan-linux-amd64 -f bityuan.toml >> bty.out&
  
 ### 平行链节点部署 
 正常需要完成主链同步才可以部署平行链。 可以临时使用官方的主链连接做开发测试, 等自己主链节点同步完后,再改成自己的连接,具体见下文配置说明 。  
-- 下载BTY平行链，解压压缩包，并进入目录  
+- 下载平行链，解压压缩包，并进入目录  
 ```  
 wget https://bty33.oss-cn-shanghai.aliyuncs.com/chain33Dev/parachain/linux/chain33_para_linux_0670237.tar.gz  
 tar -zxvf chain33_para_linux_0670237.tar.gz  
