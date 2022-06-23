@@ -156,12 +156,11 @@ contract newERC1155 is ERC1155 {
 [[用户发行ERC1155]](https://github.com/andyYuanFZM/sentianDemo/tree/master/src/test/solidity/ERC721ByUser.sol): NFT合约不限制只有管理员才能发行，任何用户都可以调用mint方法发行NFT， 适用于平台任意作者都可以发行NFT的业务场景。  
 
 **备注：**
-1. 限制是否由管理员发行,实际就是在合约的mint方法中简单加了以下限制条件判断,其它逻辑没有任何区别。  
+- 限制是否由管理员发行,实际就是在合约的mint方法中简单加了以下限制条件判断,其它逻辑没有任何区别。  
 ```  
  require(msg.sender == _owner, "only authorized owner can mint NFT.");
 ```  
-***2. 如果在不清楚是选择用ERC721还是ERC1155情况下,建议首选使用ERC1155。***  
-
+- ***2. 如果在不清楚是选择用ERC721还是ERC1155情况下,建议首选使用ERC1155。***  
 
 ### NFT合约部署调用流程
 应用和区块链交互流程： 
