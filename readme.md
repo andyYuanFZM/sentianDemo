@@ -35,7 +35,13 @@
 | 8   | SDK| 封装了同区块链交互的接口和区块链通用方法（包括：公私钥生成，签名，交易构造等）, 支持java-sdk, go-sdk, web3.js等 |
 
 ### 森田链环境部署
-**环境已经具备，此章略过。**  
+**环境部署包括主链和平行链，目前已经具备，此章略过。**
+
+简要介绍一下主链+平行链架构下交易的流程：  
+- 交易在链下完成构造和签名,交易构造时需要在交易体中带上对应平行链的名称。   
+- 签好名的交易通过平行链的jsonrpc接口发往平行链节点。   
+- 平行链通过它和主链之间的grpc连接,将交易转发到主链节点,由主链打包区块共识后存入主链账本。   
+- 主链区块生成后,平行链实时拉取新产生的区块,过滤出属于本平行链的交易（根据平行链名称）, 送入虚拟机执行后并写入平行链账本。  
 
 ### NFT合约概述
 NFT合约运行在平行链的EVM虚拟机中, EVM虚拟机运行solidity语言编写和编译的智能合约。   
@@ -56,7 +62,7 @@ deployByUser此目录下的用例支持任意用户都可以部署NFT合约，�
 **目前使用最多的是mintByManager目录下的ERC1155合约, 建议只关注这个用例**  
 
 2. 运行JAVA Demo程序  
-- 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/sentianDemo/blob/master/BlockChain.java)  中的createAccount方法，生成地址和私钥  
+- 调用 [[BlockChainTest.java]](https://github.com/andyYuanFZM/sentianDemo/blob/master/src/test/java/com/chain33/cn/BlockChainTest.java)  中的createAccount方法，生成地址和私钥  
 - 修改对应子目录下的ERC1155Test或ERC721Test文件，将上一步生成的内容，分别填充到以下几个参数中，注意私钥即资产，要隐私存放，而地址是可以公开的  
 ```  
 // 管理员地址和私钥
