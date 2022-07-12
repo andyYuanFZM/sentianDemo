@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
+
 import com.alibaba.fastjson.JSONObject;
 import com.chain33.cn.CommonUtil;
 
-import cn.chain33.javasdk.client.Account;
 import cn.chain33.javasdk.client.RpcClient;
 import cn.chain33.javasdk.model.AccountInfo;
 import cn.chain33.javasdk.model.decode.DecodeRawTransaction;
@@ -23,23 +23,23 @@ import cn.chain33.javasdk.utils.TransactionUtil;
  */
 public class ERC1155Test {
 
-	// 平行链所在服务器IP地址
+	// TODO:需要设置参数 平行链所在服务器IP地址
 	String ip = "172.22.16.179";
 	// 平行链服务端口
 	int port = 8901;
 	RpcClient client = new RpcClient(ip, port);
 	
-    // 平行链名称，固定格式user.p.xxxx.样例中使用的名称叫mbaas， 根据自己平行链名称变化。  这个名称一定要和平行链配置文件中的名称完全一致。
-	String paraName = "user.p.mbaas.";
+    // TODO:需要设置参数 平行链名称，固定格式user.p.xxxx.样例中使用的名称叫sentianPara， 根据自己平行链名称变化。  这个名称一定要和平行链配置文件中的名称完全一致。
+	String paraName = "user.p.sentianPara.";
 
-	// 合约部署人（管理员）地址和私钥,地址下需要有BTY来缴纳手续费
+	// TODO:需要设置参数 合约部署人（管理员）地址和私钥,地址下需要有BTY来缴纳手续费
 	// 生成方式参考下面testCreateAccount方法，私钥和地址一一对应
 	String managerAddress = "14nh6p7CUNtLXAHEiVkSd5mLUWynzafHBx";
 	String managerPrivateKey = "7dfe80684f7007b2829a28c85be681304f7f4cf6081303dbace925826e2891d1";
 //	String managerAddress = "替换成自己的地址，用下面createAccount方法生成";
 //	String managerPrivateKey = "替换成自己的私钥，用下面createAccount方法生成,注意私钥千万不能泄漏";
     
-    // 用户手续费代扣地址和私钥,地址下需要有BTY来缴纳手续费
+    // TODO:需要设置参数 用户手续费代扣地址和私钥,地址下需要有BTY来缴纳手续费
 	// 生成方式参考下面testCreateAccount方法，私钥和地址一一对应
 	String withholdAddress = "17RH6oiMbUjat3AAyQeifNiACPFefvz3Au";
     String withholdPrivateKey = "56d1272fcf806c3c5105f3536e39c8b33f88cb8971011dfe5886159201884763";
@@ -63,11 +63,11 @@ public class ERC1155Test {
     	
     	
     	// =======> step1： 为用户A和B生成私钥和地址
-    	AccountInfo infoA = createAccount();
+    	AccountInfo infoA = CommonUtil.createAccount();
     	useraAddress = infoA.getAddress();
     	useraPrivateKey = infoA.getPrivateKey();
     	
-    	AccountInfo infoB = createAccount();
+    	AccountInfo infoB = CommonUtil.createAccount();
     	userbAddress = infoB.getAddress();
     	userbPrivateKey = infoB.getPrivateKey();
     	
@@ -101,8 +101,14 @@ public class ERC1155Test {
         
         // 构造合约调用, mint对应solidity合约里的方法名， useraAddress, ids, amounts这三项对应合约里的参数。  将NFT发行在用户A地址下
         byte[] initNFT = EvmUtil.encodeParameter(CommonUtil.abi_User_1155, "mint", useraAddress, ids, amounts, uris);
-    	// 构造发行NFT交易体，用户A对此笔交易签名：表示用户A有发行NFT的权限
-    	String txEncode = EvmUtil.callEvmContractWithhold(initNFT,"", 0, execer, useraPrivateKey, contractAddress);
+    	
+    	// mint NFT的GAS费
+        String evmCode = EvmUtil.getCallEvmEncode(initNFT, "mint", 0, contractAddress, paraName);
+        long gas = client.queryEVMGas("evm", evmCode, useraAddress);
+        System.out.println("调用mint方法的Gas fee:" + gas);
+        
+        // 构造发行NFT交易体，用户A对此笔交易签名：表示用户A有发行NFT的权限
+    	String txEncode = EvmUtil.callEvmContractWithholdByGas(initNFT,"", 0, execer, useraPrivateKey, contractAddress, gas);
     	// 再调用代扣交易方法，用代扣私钥对交易组做签名
     	createNobalance(txEncode, paracontractAddress, useraPrivateKey, withholdPrivateKey);
         
@@ -117,8 +123,14 @@ public class ERC1155Test {
 
         // 用户A将第1个NFT中的50个转给用户B
     	byte[] transfer = EvmUtil.encodeParameter(CommonUtil.abi_User_1155, "transferArtNFT", userbAddress, ids[0], 50);
+    	
+    	// transfer NFT的GAS费
+        evmCode = EvmUtil.getCallEvmEncode(transfer, "transfer", 0, contractAddress, paraName);
+        gas = client.queryEVMGas("evm", evmCode, useraAddress);
+        System.out.println("调用transfer方法的Gas fee:" + gas);
+    	
     	// 构造转账交易体，先用用户A对此笔交易签名，
-    	txEncode = EvmUtil.callEvmContractWithhold(transfer,"", 0, execer, useraPrivateKey, contractAddress);
+    	txEncode = EvmUtil.callEvmContractWithholdByGas(transfer,"", 0, execer, useraPrivateKey, contractAddress, gas);
     	// 再调用代扣交易方法，用代扣私钥对交易组做签名
     	createNobalance(txEncode, paracontractAddress, useraPrivateKey, withholdPrivateKey);
 
@@ -139,16 +151,6 @@ public class ERC1155Test {
         packAbiGet = EvmUtil.encodeParameter(CommonUtil.abi_User_1155, "uri", ids[1]);
         queryContractString(packAbiGet, contractAddress, "NFTID=" + ids[1] + "的URI信息");
         
-    }
-    
-    /**
-     * Step1: 生成私钥，地址
-     * 一般在用户注册时调用，生成后在数据库中和用户信息绑定，后续直接从库中查出来使用
-     */
-    private AccountInfo createAccount() {
-    	Account account = new Account();
-		AccountInfo accountInfo = account.newAccountLocal();
-		return accountInfo;
     }
     
     /**
